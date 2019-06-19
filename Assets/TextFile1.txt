@@ -1,0 +1,72 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerScript : MonoBehaviour {
+
+    public float speed = 1.0f;
+    // Use this for initialization
+    public GameObject bullet;
+    
+    public GameObject plane;
+
+    BulletScript bulletScipt;
+
+
+	void Start () {
+
+        bulletScipt = bullet.GetComponent<BulletScript>();
+
+        GameObject obj = GameObject.FindGameObjectWithTag("Base");
+
+        if (obj == null)
+        {
+            print("no object is found");
+        }
+        
+    }
+	
+	// Update is called once per frame
+	void Update () {
+        float x = transform.position.x + Time.deltaTime * speed * Input.GetAxis("Horizontal");
+
+        // PS: Find limit
+        if (x > 50)
+        {
+            x = 50;
+        }
+        else if (x < -50)
+        {
+            x = -50;
+        }
+        float z = transform.position.z + Time.deltaTime * speed * Input.GetAxis("Vertical");
+        if (z > 50)
+        {
+            z = 50;
+        }
+        else if (z < -50)
+        {
+            z = -50;
+        }
+
+        if (Input.GetAxis("Fire1") == 1)
+        {
+            bullet.transform.position = transform.position;
+
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            
+            Collider collider = base.GetComponent<Collider>();
+            RaycastHit hit;
+            if (collider.Raycast(ray, out hit, 10000.0f))
+            {
+                print("HIT");
+
+                Vector3 point = hit.point;
+                bullet.transform.rotation = Quaternion.FromToRotation(transform.position, point);
+            }
+
+            Instantiate(bullet);
+        }
+        transform.position = new Vector3(x, 1.0f, z);
+	}
+}
