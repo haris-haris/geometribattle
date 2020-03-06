@@ -20,28 +20,30 @@ public class CameraScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
 
-        float x = player.transform.position.x;
-        float y = 10.0f;
-        float z = player.transform.position.z;
+        if (player != null)
+        {
+            float x = player.transform.position.x;
+            float y = 10.0f;
+            float z = player.transform.position.z;
 
-        if(x <= -xCameraLimit)
-        {
-            x = -xCameraLimit;
+            if (x <= -xCameraLimit)
+            {
+                x = -xCameraLimit;
+            }
+            if (x >= xCameraLimit)
+            {
+                x = xCameraLimit;
+            }
+            if (z <= -zCameraLimit)
+            {
+                z = -zCameraLimit;
+            }
+            if (z >= zCameraLimit)
+            {
+                z = zCameraLimit;
+            }
+            transform.position = new Vector3(x, y, z);
         }
-        if(x >= xCameraLimit)
-        {
-            x = xCameraLimit;
-        }
-        if(z <= -zCameraLimit)
-        {
-            z = -zCameraLimit;
-        }
-        if(z >= zCameraLimit)
-        {
-            z = zCameraLimit;
-        }
-        transform.position = new Vector3(x, y, z);
     }
 }

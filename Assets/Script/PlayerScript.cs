@@ -5,69 +5,65 @@ using UnityEngine;
 public class PlayerScript : MonoBehaviour
 {
     public float speed = 5.0f;
-    public float speed_acc = 0;
-    public float minspeed_acc = 0;
-    public float maxspeed_acc = 2.0f;
     public float xPlayerMoveLimit;
     public float zPlayerMoveLimit;
     float rampUp = 0.5f;
     float deceleration = 1f;
+    public bool isAutoOn, isBounceOn, isBurstOn, isTwoWayOn, isChaseOn;
 
     public GameObject bullet;
     public GameObject plane;
+
+    public int life = 5;
 
     GameObject weaponObject;
     BounceWeaponScript bounceWeapon;
     AutomaticWeaponScript autoWeapon;
     BulletScript bulletScript;
     BurstWeaponScript burstWeapon;
+    TwoWayWeapon twoWayWeapon;
+    ChaseBounceWeaponScript chaseBounceWeapon;
 
     // Start is called before the first frame update
     void Start()
     {
+        //getting scripts
         bulletScript = bullet.GetComponent<BulletScript>();
         autoWeapon = GetComponent<AutomaticWeaponScript>();
         burstWeapon = GetComponent<BurstWeaponScript>();
         bounceWeapon = GetComponent<BounceWeaponScript>();
+        twoWayWeapon = GetComponent<TwoWayWeapon>();
+        chaseBounceWeapon = GetComponent<ChaseBounceWeaponScript>();
 
+        //finding plane
         GameObject obj = GameObject.FindGameObjectWithTag("Base");
         if (obj == null)
         {
             print("no object is found");
         }
+        //weapon status
+        isAutoOn = true;
+        isBounceOn = false;
+        isBurstOn = false;
+        isTwoWayOn = false;
+        isChaseOn = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        //setting weapon position
         autoWeapon.playerPosition = transform.position;
         burstWeapon.playerPosition = transform.position;
         bounceWeapon.playerPosition = transform.position;
+        twoWayWeapon.playerPosition = transform.position;
+        chaseBounceWeapon.playerPosition = transform.position;
 
-        //float inputdeltahorizontal = input.getaxis("horizontal");
-        //float inputdeltavertical = input.getaxis("vertical");
-
-        //if (inputDeltaHorizontal == 0)
-        //{
-        //    speed_acc = Mathf.MoveTowards(speed_acc, 0f, deceleration * Time.deltaTime);
-        //}
-        //else
-        //{
-        //    speed_acc += inputDeltaHorizontal * rampUp * Time.deltaTime;
-        //}
-
-        //if (inputDeltaVertical == 0)
-        //{
-        //    speed_acc = Mathf.MoveTowards(speed_acc, 0f, deceleration * Time.deltaTime);
-        //}
-        //else
-        //{
-        //    speed_acc += inputDeltaVertical * rampUp * Time.deltaTime;
-        //}
-
+        //setting x & z player coordinates
         float x = transform.position.x + Time.deltaTime * Input.GetAxis("Horizontal") * speed;
         float z = transform.position.z + Time.deltaTime * Input.GetAxis("Vertical") * speed;
 
+        //move limit
         if (x > xPlayerMoveLimit)
             x = xPlayerMoveLimit;
         else if (x < -xPlayerMoveLimit)
@@ -77,7 +73,8 @@ public class PlayerScript : MonoBehaviour
             z = zPlayerMoveLimit;
         else if (z < -zPlayerMoveLimit)
             z = -zPlayerMoveLimit;
-
+        
+        //firing
         if (Input.GetAxis("Fire1") == 1)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -99,19 +96,107 @@ public class PlayerScript : MonoBehaviour
                 autoWeapon.rotationQ = Quaternion.FromToRotation(Vector3.right, direction);
                 burstWeapon.rotationQ = Quaternion.FromToRotation(Vector3.right, direction);
                 bounceWeapon.rotationQ = Quaternion.FromToRotation(Vector3.right, direction);
+                twoWayWeapon.rotationQ = Quaternion.FromToRotation(Vector3.right, direction);
+                chaseBounceWeapon.rotationQ = Quaternion.FromToRotation(Vector3.right, direction);
 
-                bounceWeapon.SetFire(true);
-                //autoWeapon.SetFire(true);
-                //burstWeapon.SetFire(true);
+                //checking weapon
+                if (isAutoOn)
+                    autoWeapon.SetFire(true);
+                else
+                    autoWeapon.SetFire(false);
+                if (isBurstOn)
+                    burstWeapon.SetFire(true);
+                else
+                    burstWeapon.SetFire(false);
+                if (isBounceOn)
+                    bounceWeapon.SetFire(true);
+                else
+                    bounceWeapon.SetFire(false);
+                if (isTwoWayOn)
+                    twoWayWeapon.SetFire(true);
+                else
+                    twoWayWeapon.SetFire(false);
+                if (isChaseOn)
+                    chaseBounceWeapon.SetFire(true);
+                else
+                    chaseBounceWeapon.SetFire(false);
             }
         }
         else if (Input.GetAxis("Fire1") == 0)
         {
-                bounceWeapon.SetFire(false);
-                //autoWeapon.SetFire(false);
-                //burstWeapon.SetFire(false);
+            //stop firing
+            autoWeapon.SetFire(false);
+            burstWeapon.SetFire(false);
+            bounceWeapon.SetFire(false);
+            twoWayWeapon.SetFire(false);
+            chaseBounceWeapon.SetFire(false);
         }
+
+        //moving player
         transform.position = new Vector3(x, 1.0f, z);
+
+        //selecting weapon
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            isAutoOn = true;
+            isBounceOn = false;
+            isBurstOn = false;
+            isTwoWayOn = false;
+            isChaseOn = false;
+        }
+        //if (Input.GetKeyDown(KeyCode.Alpha2))
+        //{
+        //    isAutoOn = false;
+        //    isBounceOn = true;
+        //    isBurstOn = false;
+        //    isTwoWayOn = false;
+        //    isChaseOn = false;
+        //}
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            isAutoOn = false;
+            isBounceOn = false;
+            isBurstOn = true;
+            isTwoWayOn = false;
+            isChaseOn = false;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            isAutoOn = false;
+            isBounceOn = false;
+            isBurstOn = false;
+            isTwoWayOn = true;
+            isChaseOn = false;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            isAutoOn = false;
+            isBounceOn = false;
+            isBurstOn = false;
+            isTwoWayOn = false;
+            isChaseOn = true;
+        }
+
+        //ded
+        if (life <= 0)
+        {
+            Destroy(gameObject);
+            Destroy(this);
+        }
+    }
+    //colliding
+    private void OnTriggerEnter(Collider other)
+    {
+        GameObject objectCollide = other.gameObject;
+        if (objectCollide.tag == "Enemy" || objectCollide.tag == "EnemyBossBullet")
+        {
+            life--;
+            Destroy(objectCollide);
+        }
+        if (objectCollide.tag == "EnemyBoss")
+        {
+            life = 0;
+        }
     }
 }
 /*
@@ -194,3 +279,26 @@ if(Input.GetAxis("Horizontal") >= 1 || Input.GetAxis("Vertical") >= 1)
         }
 
  */
+
+
+
+//float inputdeltahorizontal = input.getaxis("horizontal");
+//float inputdeltavertical = input.getaxis("vertical");
+
+//if (inputDeltaHorizontal == 0)
+//{
+//    speed_acc = Mathf.MoveTowards(speed_acc, 0f, deceleration * Time.deltaTime);
+//}
+//else
+//{
+//    speed_acc += inputDeltaHorizontal * rampUp * Time.deltaTime;
+//}
+
+//if (inputDeltaVertical == 0)
+//{
+//    speed_acc = Mathf.MoveTowards(speed_acc, 0f, deceleration * Time.deltaTime);
+//}
+//else
+//{
+//    speed_acc += inputDeltaVertical * rampUp * Time.deltaTime;
+//}

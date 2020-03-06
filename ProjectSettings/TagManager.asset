@@ -5,6 +5,14 @@ TagManager:
   serializedVersion: 2
   tags:
   - Base
+  - Enemy
+  - bullet
+  - test
+  - BounceBullet
+  - EnemyBossWeapon
+  - GameManager
+  - EnemyBoss
+  - EnemyBossBullet
   layers:
   - Default
   - TransparentFX
